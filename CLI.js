@@ -34,71 +34,75 @@ async function connectToDatabase() {
   return db; // Return the database connection
 }
 
-function removeColor(text) {
-  // Function to remove color attributes from text
-  return text.replace(/\x1b\[[0-9;]*m/g, "");
-}
-
+// This function handles the listing operations based on the operation selected
 async function Listing_Operations({ operation = "", data = "", ID = "" }) {
-  // Function to perform database operations
   let Listing = null; // Initialize the Listing variable
   switch (operation) {
-    case "Seed":
-      Listing = await Add_Seed_Data(Seed_Data); // Add seed data
-      if (Listing === null) {
-        throw new Error("Unable to add seed data. Error occurred!");
+    case "Seed": // Add seed data
+      try {
+        Listing = await Add_Seed_Data(Seed_Data);
+      } catch (error) {
+        throw new Error(`Unable to add seed data. Error: ${error.message}`);
       }
       break;
-    case "Add":
-      Listing = await Add_Listing(data); // Add data to the listing
-      if (!Listing) {
-        throw new Error("Unable to add listing. Error occurred!");
+    case "Add": // Adds a listing
+      try {
+        Listing = await Add_Listing(data);
+      } catch (error) {
+        throw new Error(`Unable to add listing. Error: ${error.message}`);
       }
       break;
-    case "Show":
-      Listing = await Show_Listing(ID); // Show the listing
-      if (!Listing) {
-        throw new Error("Listing not found.");
+    case "Show": // Show a listing
+      try {
+        Listing = await Show_Listing(ID);
+      } catch (error) {
+        throw new Error(`Unable to show listing. Error: ${error.message}`);
       }
       break;
-    case "ShowAll":
-      Listing = await Show_Listings(); // Show all the listings
-      if (Listing === null) {
-        throw new Error("Unable to find listing data. Error occurred!");
+    case "ShowAll": // Show all listings
+      try {
+        Listing = await Show_Listings();
+      } catch (error) {
+        throw new Error(`Unable to show listings. Error: ${error.message}`);
       }
       break;
-    case "Update":
-      Listing = await Update_Listing(ID, data); // Update the listing
-      if (!Listing) {
-        throw new Error("Unable to update listing. Error occurred!");
+    case "Update": // Update a listing
+      try {
+        Listing = await Update_Listing(ID, data);
+      } catch (error) {
+        throw new Error(`Unable to update listing. Error: ${error.message}`);
       }
       break;
-    case "Delete":
-      Listing = await Delete_Listing(ID); // Update the listing
-      if (!Listing) {
-        throw new Error("Unable to delete listing. Error occurred!");
+    case "Delete": // Deletes a listing
+      try {
+        Listing = await Delete_Listing(ID);
+      } catch (error) {
+        throw new Error(`Unable to delete listing. Error: ${error.message}`);
       }
       break;
-    case "DeleteAll":
-      Listing = await Delete_All_Listings(); // Update the listing
-      if (!Listing) {
-        throw new Error("Unable to delete listings. Error occurred!");
+    case "DeleteAll": // Deletes all listings
+      try {
+        Listing = await Delete_All_Listings();
+      } catch (error) {
+        throw new Error(`Unable to delete listings. Error: ${error.message}`);
       }
       break;
     default:
-      console.log("Invalid operation.");
+      throw new Error("Invalid operation selected."); // Throw an error for wrong operation selected
   }
   return Listing;
 }
 
+// Displays listing operations data and messages
 function Show_Data(data, message) {
   console.log("\n");
-  console.log(data); // Display the added seed data
+  console.log(data);
   console.log("\n");
   console.log(chalk.yellowBright(message));
   console.log("\n");
 }
 
+// Displays error messages
 function Show_Error(error) {
   console.log(chalk.redBright(`\n${error}\n`));
 }
@@ -161,11 +165,12 @@ program
       if (typeof db !== "undefined") {
         db.connection.close(); // Ensure DB connection is closed in case of error
       }
+      return;
     }
   });
 
 program
-  .command("show")
+  .command("show") // use show command to show a listing or all listings
   .description(
     "Show a listing by it's ID or All the Listings in the collection."
   )
@@ -174,6 +179,7 @@ program
   .action(async (options) => {
     try {
       if (!options.one && !options.all) {
+        // Check if none of the options are selected
         console.log(
           chalk.redBright(
             "\nPlease select one of the options or type -h for help.\n"
@@ -184,25 +190,28 @@ program
       const db = await connectToDatabase(); // Connect to the MongoDB database
 
       if (options.one && options.one.trim()) {
+        // Check if the option to show a single listing is selected
         const ID = options.one.trim();
         try {
           const show_data = await Listing_Operations({
             operation: "Show",
             ID: ID,
-          }); // Add data to the listing
-          Show_Data(show_data, "Listing found."); // Display the added listing data
+          }); // grab listing data by ID
+          Show_Data(show_data, "Listing found.");
         } catch (error) {
           Show_Error(error.message);
         }
       }
       if (options.all) {
+        // Check if the option to show all listings is selected
         try {
-          const show_data = await Listing_Operations({ operation: "ShowAll" }); // Add data to the listing
-          Show_Data(show_data, `No. of listings: ${show_data.length}`); // Display the added listing data
+          const show_data = await Listing_Operations({ operation: "ShowAll" }); // Show all listings
+          Show_Data(show_data, `No. of listings: ${show_data.length}`);
         } catch (error) {
           Show_Error(error.message);
         }
       }
+
       db.connection.close(); // Close the MongoDB connection
       return;
     } catch (error) {
@@ -210,11 +219,12 @@ program
       if (typeof db !== "undefined") {
         db.connection.close(); // Ensure DB connection is closed in case of error
       }
+      return;
     }
   });
 
 program
-  .command("update <id>")
+  .command("update <id>") // Update a listing by ID
   .description("Update a listing by it's ID.")
   .action(async (id) => {
     try {
@@ -225,20 +235,21 @@ program
           const show_data = await Listing_Operations({
             operation: "Show",
             ID: ID,
-          }); // Add data to the listing
-          Show_Data(show_data, "Listing to be updated."); // Display the added listing data
+          }); // Show the listing data to be updated
+          Show_Data(show_data, "Listing to be updated.");
           console.log(chalk.yellowBright("Enter the updated data:"));
-          const answers = await inquirer.prompt(questions); // Prompt the user for the listing data
+          const answers = await inquirer.prompt(questions); // Prompt the user for the updated listing data
           const updated_data = await Listing_Operations({
             operation: "Update",
             data: answers,
             ID: ID,
-          }); // Add data to the listing
-          Show_Data(updated_data, "Listing updated successfully!"); // Display the added listing data
+          }); // Update the listing data
+          Show_Data(updated_data, "Listing updated successfully!"); // Display the updated listing data
         } catch (error) {
           Show_Error(error.message);
         }
       }
+
       db.connection.close(); // Close the MongoDB connection
       return;
     } catch (error) {
@@ -246,11 +257,12 @@ program
       if (typeof db !== "undefined") {
         db.connection.close(); // Ensure DB connection is closed in case of error
       }
+      return;
     }
   });
 
 program
-  .command("delete")
+  .command("delete") // Delete a listing by ID or all listings
   .description(
     "Deletes listing by it's ID or All the Listings in the collection."
   )
@@ -259,6 +271,7 @@ program
   .action(async (options) => {
     try {
       if (!options.one && !options.all) {
+        // Check if none of the options are selected
         console.log(
           chalk.redBright(
             "\nPlease select one of the options or type -h for help.\n"
@@ -269,18 +282,38 @@ program
       const db = await connectToDatabase(); // Connect to the MongoDB database
 
       if (options.one && options.one.trim()) {
+        // Check if the option to delete a single listing is selected
         const ID = options.one.trim();
         try {
           const show_data = await Listing_Operations({
-            operation: "Delete",
+            operation: "Show",
             ID: ID,
-          }); // Add data to the listing
-          Show_Data(show_data, "Listing deleted."); // Display the added listing data
+          }); // Show the listing data to be deleted
+          Show_Data(show_data, "Listing to be deleted.");
+          const { isConfirmed } = await inquirer.prompt([
+            // Prompt the user for confirmation
+            {
+              type: "confirm",
+              name: "isConfirmed",
+              message: chalk.redBright(
+                "Are you sure you want to delete the listing?"
+              ),
+            },
+          ]);
+          if (isConfirmed) {
+            const delete_data = await Listing_Operations({
+              operation: "Delete",
+              ID: ID,
+            }); // Delete the listing
+            Show_Data(delete_data, "Listing deleted."); // Display the deleted listing data
+          } else {
+            console.log(chalk.yellowBright("Deletion cancelled."));
+          }
         } catch (error) {
           Show_Error(error.message);
         }
       }
-      if (options.all) {
+      if (options.all) { // Check if the option to delete all listings is selected
         try {
           const { isConfirmed } = await inquirer.prompt([
             // Prompt the user for confirmation
@@ -293,10 +326,10 @@ program
             },
           ]);
           if (isConfirmed) {
-            const show_data = await Listing_Operations({
+            const delete_all_data = await Listing_Operations({
               operation: "DeleteAll",
             }); // Add data to the listing
-            Show_Data(show_data, `Deleted All listings.`); // Display the added listing data
+            Show_Data(delete_all_data, `Deleted All listings.`); // Display delete confirmation
           } else {
             console.log(chalk.yellowBright("Deletion cancelled."));
           }

@@ -1,10 +1,12 @@
 import mongoose from 'mongoose'; // Import the mongoose package
 
 const listingSchema = new mongoose.Schema({ // Create a new mongoose schema for the listings
-    title: String, 
-    description: String,
-    start_price: Number,
-    reserve_price: Number,
-});
+    title: { type: String, required: true },
+    description: {
+        type: String, required: true
+    },
+    start_price: { type: Number, required: true },
+    reserve_price: { type: Number, required: true },
+}, {strict: true});
 
 export default listingSchema;

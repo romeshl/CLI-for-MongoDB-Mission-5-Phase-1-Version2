@@ -4,7 +4,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "nodemon Listing_transactions.js"
+    "start": "nodemon DB_Operations/Listing_transactions.js"
   },
   "keywords": [],
   "author": "",
