@@ -22,9 +22,11 @@ After playing a bit with [readline](https://www.npmjs.com/package/readline0), [c
 
 ![screenshot](./Assests/Mission%205%20-%20Phase%201%20-%20Task%205%20-%20folder%20structure.png)
 
-**CLI.js** - This is the file that contains main function of this CLI.
+**CLI.js** - This is the file main file of the program and contains the commands of this CLI.
 
-**MongoDB.js** - This file contains the connection to MongoDB database and import in CLI.js
+**commands.js** - This file handles commands and perform relevant operations based on teh command.
+
+**MongoDB.js** - This file contains the connection to MongoDB database.
 
 **Inquirer_prompts.js** - This file contains the prompts used with inquirer package.
 
@@ -32,7 +34,7 @@ After playing a bit with [readline](https://www.npmjs.com/package/readline0), [c
 
 **ListingsCollection.js** - This file creates Listings model based on the schema at ListingsSchema.js.
 
-**Listing_transactions.js** - This file contains all the CRUD operations for Listings collection. It imports ListingsCollection.js file and exports all the functions to CLI.js.
+**Listing_transactions.js** - This file contains all the CRUD operations for Listings collection. It imports ListingsCollection.js file and exports all the functions to commands.js.
 
 **trademe.listings.json** - This file contains the seed data to be added to an empty database.
 
