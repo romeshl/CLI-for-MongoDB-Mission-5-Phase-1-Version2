@@ -1,7 +1,7 @@
 {
   "name": "TrademeCRUDTester",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "CLI.js",
   "type": "module",
   "scripts": {
     "start": "nodemon DB_Operations/Listing_transactions.js"

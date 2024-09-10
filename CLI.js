@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-
 import { Command } from "commander"; // Import the Command class from the commander package
 import {
   handleAddCommand,

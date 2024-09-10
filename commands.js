@@ -1,6 +1,8 @@
 import inquirer from "inquirer"; // Importing inquirer for prompting user
 import chalk from "chalk"; // Importing chalk for coloring the output
 
+import { questions } from "./Components/Inquirer_prompts.js"; // Inquirer prompts
+
 import { connectToDatabase } from "./Connection/MongoDB.js"; // MongoDB connection
 
 import {
@@ -17,8 +19,6 @@ import { readFile } from "fs/promises"; // Importing the readFile function from 
 const Seed_Data = JSON.parse(
   await readFile(new URL("./Seed_Data/trademe.listings.json", import.meta.url)) // Read the seed data from the JSON file stored in the Seed_Data folder
 );
-
-import { questions } from "./Components/Inquirer_prompts.js"; // Inquirer prompts
 
 export function Show_Data(data, message) { // Function to display the data from listing operations
   console.log("\n");
@@ -44,7 +44,7 @@ export async function handleAddCommand(options) { // Function to handle the add 
         const seeded_data = await Add_Seed_Data(Seed_Data); // Add seed data
         Show_Data(
           seeded_data,
-          `Seed data added Successfully. No. of listings: ${seeded_data.length}`
+          `Seed data added Successfully. No. of listings added: ${seeded_data.length}`
         );
       } catch (error) {
         Show_Error(`Unable to add seed data. Error: ${error.message}`);
@@ -113,7 +113,7 @@ export async function handleUpdateCommand(id) { // Function to handle the update
         Show_Data(show_data, "Listing to be updated.");
         console.log(chalk.yellowBright("Enter the updated data:"));
         const answers = await inquirer.prompt(questions); // Prompt the user for updated data
-        const updated_data = Update_Listing(ID, answers); // Update the listing
+        const updated_data = await Update_Listing(ID, answers); // Update the listing
         Show_Data(updated_data, "Listing updated successfully!");
       } catch (error) {
         Show_Error(`Unable to update listing. Error: ${error.message}`);
@@ -150,10 +150,10 @@ export async function handleDeleteCommand(options) { // Function to handle the d
           },
         ]);
         if (isConfirmed) {
-          const delete_data = Delete_Listing(ID); // Delete the listing
+          const delete_data = await Delete_Listing(ID); // Delete the listing
           Show_Data(delete_data, "Listing deleted.");
         } else {
-          console.log(chalk.yellowBright("Deletion cancelled."));
+          console.log(chalk.yellowBright("\nDeletion cancelled.\n"));
         }
       } catch (error) {
         Show_Error(`Unable to delete listing. Error: ${error.message}`);
@@ -174,7 +174,7 @@ export async function handleDeleteCommand(options) { // Function to handle the d
           const delete_all_data = await Delete_All_Listings(); // Delete all listings
           Show_Data(delete_all_data, `Deleted All listings.`);
         } else {
-          console.log(chalk.yellowBright("Deletion cancelled."));
+          console.log(chalk.yellowBright("\nDeletion cancelled.\n"));
         }
       } catch (error) {
         Show_Error(`Unable to delete listings. Error: ${error.message}`);

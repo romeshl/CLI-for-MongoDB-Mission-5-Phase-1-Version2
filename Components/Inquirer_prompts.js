@@ -1,5 +1,3 @@
-import chalk from "chalk"; // Import chalk for colorful text
-
 export const questions = [
   // data to be added to the listings
   {
